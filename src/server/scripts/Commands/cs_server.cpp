@@ -252,6 +252,7 @@ public:
             handler->SendSysMessage("No modules are enabled");
         else
             handler->SendSysMessage("List of enabled modules:");
+
         for (auto const& modName : Acore::Module::GetEnableModulesList())
         {
             handler->SendSysMessage(Acore::StringFormatFmt("|- {}", modName));
