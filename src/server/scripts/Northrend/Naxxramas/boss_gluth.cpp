@@ -23,6 +23,7 @@
 #include "SpellScriptLoader.h"
 #include "naxxramas.h"
 
+
 using namespace Gluth;
 
 void AddSC_boss_gluth()
@@ -30,4 +31,3 @@ void AddSC_boss_gluth()
     new boss_gluth();
     RegisterSpellScript(spell_gluth_decimate);
 }
-

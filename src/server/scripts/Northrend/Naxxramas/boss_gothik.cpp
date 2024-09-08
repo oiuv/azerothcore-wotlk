@@ -24,6 +24,7 @@
 #include "SpellScriptLoader.h"
 #include "naxxramas.h"
 
+
 using namespace Gothik;
 
 void AddSC_boss_gothik()
@@ -33,4 +34,3 @@ void AddSC_boss_gothik()
     new npc_gothik_trigger();
     RegisterSpellScript(spell_gothik_shadow_bolt_volley);
 }
-

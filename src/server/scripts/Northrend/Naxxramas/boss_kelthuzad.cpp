@@ -23,6 +23,7 @@
 #include "SpellScriptLoader.h"
 #include "naxxramas.h"
 
+
 using namespace Kelthuzad;
 
 void AddSC_boss_kelthuzad()
@@ -32,4 +33,3 @@ void AddSC_boss_kelthuzad()
     RegisterSpellScript(spell_kelthuzad_frost_blast);
     RegisterSpellScript(spell_kelthuzad_detonate_mana_aura);
 }
-

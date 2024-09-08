@@ -24,6 +24,7 @@
 #include "SpellScriptLoader.h"
 #include "naxxramas.h"
 
+
 using namespace FourHorsemen;
 
 void AddSC_boss_four_horsemen()
@@ -31,4 +32,3 @@ void AddSC_boss_four_horsemen()
     new boss_four_horsemen();
     RegisterSpellScript(spell_four_horsemen_mark_aura);
 }
-

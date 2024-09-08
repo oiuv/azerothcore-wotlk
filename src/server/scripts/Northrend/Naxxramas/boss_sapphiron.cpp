@@ -23,6 +23,7 @@
 #include "SpellScriptLoader.h"
 #include "naxxramas.h"
 
+
 using namespace Sapphiron;
 
 void AddSC_boss_sapphiron()
@@ -30,4 +31,3 @@ void AddSC_boss_sapphiron()
     new boss_sapphiron();
     RegisterSpellScript(spell_sapphiron_frost_explosion);
 }
-
