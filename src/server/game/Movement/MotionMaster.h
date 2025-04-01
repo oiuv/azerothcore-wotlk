@@ -201,7 +201,7 @@ public:
     void MoveIdle();
     void MoveTargetedHome(bool walk = false);
     void MoveRandom(float wanderDistance = 0.0f);
-    void MoveFollow(Unit* target, float dist, float angle, MovementSlot slot = MOTION_SLOT_ACTIVE, bool inheritWalkState = true);
+    void MoveFollow(Unit* target, float dist, float angle, MovementSlot slot = MOTION_SLOT_ACTIVE, bool inheritWalkState = true, bool inheritSpeed = true);
     void MoveChase(Unit* target, std::optional<ChaseRange> dist = {}, std::optional<ChaseAngle> angle = {});
     void MoveChase(Unit* target, float dist, float angle) { MoveChase(target, ChaseRange(dist), ChaseAngle(angle)); }
     void MoveChase(Unit* target, float dist) { MoveChase(target, ChaseRange(dist)); }
@@ -239,6 +239,7 @@ public:
     void MoveRotate(uint32 time, RotateDirection direction);
 #ifdef MOD_PLAYERBOTS
     void MoveKnockbackFromForPlayer(float srcX, float srcY, float speedXY, float speedZ);
+    void MovePointBackwards(uint32 id, float x, float y, float z, bool generatePath = true, bool forceDestination = true, MovementSlot slot = MOTION_SLOT_ACTIVE, float orientation = 0.0f);
 #endif
     [[nodiscard]] MovementGeneratorType GetCurrentMovementGeneratorType() const;
     [[nodiscard]] MovementGeneratorType GetMotionSlotType(int slot) const;

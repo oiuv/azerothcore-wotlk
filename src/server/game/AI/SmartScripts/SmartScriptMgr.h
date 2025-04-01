@@ -705,7 +705,7 @@ enum SMART_ACTION
     SMART_ACTION_EXIT_VEHICLE                       = 203,    // none
     SMART_ACTION_SET_UNIT_MOVEMENT_FLAGS            = 204,    // flags
     SMART_ACTION_SET_COMBAT_DISTANCE                = 205,    // combatDistance
-    // UNUSED                                       = 206,
+    SMART_ACTION_DISMOUNT                           = 206,
     SMART_ACTION_SET_HOVER                          = 207,    // 0/1
     SMART_ACTION_ADD_IMMUNITY                       = 208,    // type, id, value
     SMART_ACTION_REMOVE_IMMUNITY                    = 209,    // type, id, value
@@ -738,8 +738,9 @@ enum SMART_ACTION
     SMART_ACTION_MOVEMENT_PAUSE                     = 235,    // timer
     SMART_ACTION_MOVEMENT_RESUME                    = 236,    // timerOverride
     SMART_ACTION_WORLD_SCRIPT                       = 237,    // eventId, param
+    SMART_ACTION_DISABLE_REWARD                     = 238,    // reputation 0/1, loot 0/1
 
-    SMART_ACTION_AC_END                             = 238,    // placeholder
+    SMART_ACTION_AC_END                             = 239,    // placeholder
 };
 
 enum class SmartActionSummonCreatureFlags
@@ -1501,6 +1502,12 @@ struct SmartAction
             uint32 param5;
             uint32 param6;
         } raw;
+
+        struct
+        {
+            SAIBool reputation;
+            SAIBool loot;
+        } reward;
     };
 };
 
@@ -1533,7 +1540,7 @@ enum SMARTAI_TARGETS
     SMART_TARGET_GAMEOBJECT_RANGE               = 13,   // entry(0any), min, max
     SMART_TARGET_GAMEOBJECT_GUID                = 14,   // guid, entry
     SMART_TARGET_GAMEOBJECT_DISTANCE            = 15,   // entry(0any), maxDist
-    SMART_TARGET_INVOKER_PARTY                  = 16,   // invoker's party members
+    SMART_TARGET_INVOKER_PARTY                  = 16,   // includePets(0 - false, 1 - true)
     SMART_TARGET_PLAYER_RANGE                   = 17,   // min, max, maxCount (maxCount by pussywizard), set target.o to 1 if u want to search for all in range if min, max fails
     SMART_TARGET_PLAYER_DISTANCE                = 18,   // maxDist
     SMART_TARGET_CLOSEST_CREATURE               = 19,   // CreatureEntry(0any), maxDist, dead?
@@ -1736,6 +1743,11 @@ struct SmartTarget
             uint32 index;
             uint32 type;
         } instanceStorage;
+
+        struct
+        {
+            SAIBool includePets;
+        } invokerParty;
     };
 };
 
@@ -2214,6 +2226,7 @@ private:
         return true;
     }
 
+    static bool IsSAIBoolValid(SmartScriptHolder const& e, SAIBool value);
     static bool IsTextValid(SmartScriptHolder const& e, uint32 id);
     static bool CheckUnusedEventParams(SmartScriptHolder const& e);
     static bool CheckUnusedActionParams(SmartScriptHolder const& e);

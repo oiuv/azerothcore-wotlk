@@ -56,7 +56,7 @@ struct PlayerLevelInfo;
 struct PageText
 {
     std::string Text;
-    uint16 NextPage;
+    uint32 NextPage;
 };
 
 /// Key for storing temp summon data in TempSummonDataContainer
@@ -665,7 +665,6 @@ typedef std::map<std::pair<uint32, uint8>, QuestGreeting> QuestGreetingContainer
 
 typedef std::unordered_map<uint32, VendorItemData> CacheVendorItemContainer;
 typedef std::unordered_map<uint32, TrainerSpellData> CacheTrainerSpellContainer;
-typedef std::unordered_map<uint32, ServerMail> ServerMailContainer;
 
 typedef std::vector<uint32> CreatureCustomIDsContainer;
 
@@ -750,6 +749,8 @@ public:
     typedef std::vector<std::string> ScriptNameContainer;
 
     typedef std::map<uint32, uint32> CharacterConversionMap;
+
+    typedef std::unordered_map<ObjectGuid::LowType, std::vector<float>> CreatureSparringContainer;
 
     GameObjectTemplate const* GetGameObjectTemplate(uint32 entry);
     bool IsGameObjectStaticTransport(uint32 entry);
@@ -1029,6 +1030,7 @@ public:
     void LoadCreatureQuestItems();
     void LoadTempSummons();
     void LoadCreatures();
+    void LoadCreatureSparring();
     void LoadLinkedRespawn();
     bool SetCreatureLinkedRespawn(ObjectGuid::LowType guid, ObjectGuid::LowType linkedGuid);
     void LoadCreatureAddons();
@@ -1053,7 +1055,6 @@ public:
     void LoadInstanceTemplate();
     void LoadInstanceEncounters();
     void LoadMailLevelRewards();
-    void LoadMailServerTemplates();
     void LoadVehicleTemplateAccessories();
     void LoadVehicleAccessories();
     void LoadVehicleSeatAddon();
@@ -1148,12 +1149,12 @@ public:
         return nullptr;
     }
 
-    CellObjectGuids const& GetCellObjectGuids(uint16 mapid, uint8 spawnMode, uint32 cell_id)
+    CellObjectGuids const& GetGridObjectGuids(uint16 mapid, uint8 spawnMode, uint32 gridId)
     {
         MapObjectGuids::const_iterator itr1 = _mapObjectGuidsStore.find(MAKE_PAIR32(mapid, spawnMode));
         if (itr1 != _mapObjectGuidsStore.end())
         {
-            CellObjectGuidsMap::const_iterator itr2 = itr1->second.find(cell_id);
+            CellObjectGuidsMap::const_iterator itr2 = itr1->second.find(gridId);
             if (itr2 != itr1->second.end())
                 return itr2->second;
         }
@@ -1186,8 +1187,6 @@ public:
         return nullptr;
     }
 
-    [[nodiscard]] ServerMailContainer const& GetAllServerMailStore() const { return _serverMailStore; }
-
     [[nodiscard]] BroadcastText const* GetBroadcastText(uint32 id) const
     {
         BroadcastTextContainer::const_iterator itr = _broadcastTextStore.find(id);
@@ -1202,6 +1201,9 @@ public:
         if (itr == _creatureDataStore.end()) return nullptr;
         return &itr->second;
     }
+
+    [[nodiscard]] CreatureSparringContainer const& GetSparringData() const { return _creatureSparringStore; }
+
     CreatureData& NewOrExistCreatureData(ObjectGuid::LowType spawnId) { return _creatureDataStore[spawnId]; }
     void DeleteCreatureData(ObjectGuid::LowType spawnId);
     [[nodiscard]] ObjectGuid GetLinkedRespawnGuid(ObjectGuid guid) const
@@ -1309,8 +1311,8 @@ public:
 
         return &itr->second;
     }
-    [[nodiscard]] char const* GetAcoreString(uint32 entry, LocaleConstant locale) const;
-    [[nodiscard]] char const* GetAcoreStringForDBCLocale(uint32 entry) const { return GetAcoreString(entry, DBCLocaleIndex); }
+    [[nodiscard]] std::string GetAcoreString(uint32 entry, LocaleConstant locale) const;
+    [[nodiscard]] std::string GetAcoreStringForDBCLocale(uint32 entry) const { return GetAcoreString(entry, DBCLocaleIndex); }
     [[nodiscard]] LocaleConstant GetDBCLocaleIndex() const { return DBCLocaleIndex; }
     void SetDBCLocaleIndex(LocaleConstant locale) { DBCLocaleIndex = locale; }
 
@@ -1319,8 +1321,8 @@ public:
     void RemoveCreatureFromGrid(ObjectGuid::LowType guid, CreatureData const* data);
     void AddGameobjectToGrid(ObjectGuid::LowType guid, GameObjectData const* data);
     void RemoveGameobjectFromGrid(ObjectGuid::LowType guid, GameObjectData const* data);
-    uint32 AddGOData(uint32 entry, uint32 map, float x, float y, float z, float o, uint32 spawntimedelay = 0, float rotation0 = 0, float rotation1 = 0, float rotation2 = 0, float rotation3 = 0);
-    uint32 AddCreData(uint32 entry, uint32 map, float x, float y, float z, float o, uint32 spawntimedelay = 0);
+    ObjectGuid::LowType AddGOData(uint32 entry, uint32 map, float x, float y, float z, float o, uint32 spawntimedelay = 0, float rotation0 = 0, float rotation1 = 0, float rotation2 = 0, float rotation3 = 0);
+    ObjectGuid::LowType AddCreData(uint32 entry, uint32 map, float x, float y, float z, float o, uint32 spawntimedelay = 0);
 
     // reserved names
     void LoadReservedPlayerNamesDB();
@@ -1348,7 +1350,7 @@ public:
         if (itr == _gameTeleStore.end()) return nullptr;
         return &itr->second;
     }
-    [[nodiscard]] GameTele const* GetGameTele(std::string_view name) const;
+    [[nodiscard]] GameTele const* GetGameTele(std::string_view name, bool exactSearch = false) const;
     [[nodiscard]] GameTeleContainer const& GetGameTeleMap() const { return _gameTeleStore; }
     bool AddGameTele(GameTele& data);
     bool DeleteGameTele(std::string_view name);
@@ -1444,7 +1446,6 @@ public:
     }
 
     [[nodiscard]] uint32 GetQuestMoneyReward(uint8 level, uint32 questMoneyDifficulty) const;
-    void SendServerMail(Player* player, uint32 id, uint32 reqLevel, uint32 reqPlayTime, uint32 rewardMoneyA, uint32 rewardMoneyH, uint32 rewardItemA, uint32 rewardItemCountA, uint32 rewardItemH, uint32 rewardItemCountH, std::string subject, std::string body, uint8 active) const;
 private:
     // first free id for selected id type
     uint32 _auctionId; // pussywizard: accessed by a single thread
@@ -1527,6 +1528,8 @@ private:
     PageTextContainer _pageTextStore;
     InstanceTemplateContainer _instanceTemplateStore;
 
+    CreatureSparringContainer _creatureSparringStore;
+
 private:
     void LoadScripts(ScriptsType type);
     void LoadQuestRelationsHelper(QuestRelations& map, std::string const& table, bool starter, bool go);
@@ -1606,8 +1609,6 @@ private:
 
     CacheVendorItemContainer _cacheVendorItemStore;
     CacheTrainerSpellContainer _cacheTrainerSpellStore;
-
-    ServerMailContainer _serverMailStore;
 
     std::set<uint32> _difficultyEntries[MAX_DIFFICULTY - 1]; // already loaded difficulty 1 value in creatures, used in CheckCreatureTemplate
     std::set<uint32> _hasDifficultyEntries[MAX_DIFFICULTY - 1]; // already loaded creatures with difficulty 1 values, used in CheckCreatureTemplate

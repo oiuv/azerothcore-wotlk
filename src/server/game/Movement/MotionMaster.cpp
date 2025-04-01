@@ -277,7 +277,7 @@ void MotionMaster::MoveTargetedHome(bool walk /*= false*/)
         if (target)
         {
             LOG_DEBUG("movement.motionmaster", "Following {} ({})", target->IsPlayer() ? "player" : "creature", target->GetGUID().ToString());
-            Mutate(new FollowMovementGenerator<Creature>(target, PET_FOLLOW_DIST, _owner->GetFollowAngle(),true), MOTION_SLOT_ACTIVE);
+            Mutate(new FollowMovementGenerator<Creature>(target, PET_FOLLOW_DIST, _owner->GetFollowAngle(), true, true), MOTION_SLOT_ACTIVE);
         }
     }
     else
@@ -406,7 +406,7 @@ void MotionMaster::MoveCircleTarget(Unit* target)
 /**
  * @brief The unit will follow this target. Doesn't work with UNIT_FLAG_DISABLE_MOVE
  */
-void MotionMaster::MoveFollow(Unit* target, float dist, float angle, MovementSlot slot, bool inheritWalkState)
+void MotionMaster::MoveFollow(Unit* target, float dist, float angle, MovementSlot slot, bool inheritWalkState, bool inheritSpeed)
 {
     // ignore movement request if target not exist
     if (!target || target == _owner || _owner->HasUnitFlag(UNIT_FLAG_DISABLE_MOVE))
@@ -419,13 +419,13 @@ void MotionMaster::MoveFollow(Unit* target, float dist, float angle, MovementSlo
     {
         LOG_DEBUG("movement.motionmaster", "Player ({}) follow to {} ({})",
             _owner->GetGUID().ToString(), target->IsPlayer() ? "player" : "creature", target->GetGUID().ToString());
-        Mutate(new FollowMovementGenerator<Player>(target, dist, angle, inheritWalkState), slot);
+        Mutate(new FollowMovementGenerator<Player>(target, dist, angle, inheritWalkState, inheritSpeed), slot);
     }
     else
     {
         LOG_DEBUG("movement.motionmaster", "Creature ({}) follow to {} ({})",
             _owner->GetGUID().ToString(), target->IsPlayer() ? "player" : "creature", target->GetGUID().ToString());
-        Mutate(new FollowMovementGenerator<Creature>(target, dist, angle, inheritWalkState), slot);
+        Mutate(new FollowMovementGenerator<Creature>(target, dist, angle, inheritWalkState, inheritSpeed), slot);
     }
 }
 
@@ -909,6 +909,25 @@ void MotionMaster::MoveKnockbackFromForPlayer(float srcX, float srcY, float spee
     init.Launch();
     Mutate(new EffectMovementGenerator(0), MOTION_SLOT_CONTROLLED);
 }
+
+// Similar to MovePoint except setting orientationInversed
+void MotionMaster::MovePointBackwards(uint32 id, float x, float y, float z, bool generatePath, bool forceDestination, MovementSlot slot, float orientation /* = 0.0f*/)
+{
+    if (_owner->HasUnitFlag(UNIT_FLAG_DISABLE_MOVE))
+        return;
+
+    if (_owner->IsPlayer())
+    {
+        LOG_DEBUG("movement.motionmaster", "Player ({}) targeted point (Id: {} X: {} Y: {} Z: {})", _owner->GetGUID().ToString(), id, x, y, z);
+        Mutate(new PointMovementGenerator<Player>(id, x, y, z, 0.0f, orientation, nullptr, generatePath, forceDestination, ObjectGuid::Empty, true), slot);
+    }
+    else
+    {
+        LOG_DEBUG("movement.motionmaster", "Creature ({}) targeted point (ID: {} X: {} Y: {} Z: {})", _owner->GetGUID().ToString(), id, x, y, z);
+        Mutate(new PointMovementGenerator<Creature>(id, x, y, z, 0.0f, orientation, nullptr, generatePath, forceDestination, ObjectGuid::Empty, true), slot);
+    }
+}
+
 #endif
 
 void MotionMaster::propagateSpeedChange()
