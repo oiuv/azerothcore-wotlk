@@ -187,6 +187,7 @@ struct SpellModifier
     flag96 mask;
     uint32 spellId{0};
     Aura* const ownerAura;
+    uint32 priority{0};
 };
 
 typedef std::unordered_map<uint32, PlayerTalent*> PlayerTalentMap;
@@ -1852,7 +1853,7 @@ public:
                 itr->SetPvP(state);
     }
     void UpdatePvP(bool state, bool _override = false);
-    void UpdateZone(uint32 newZone, uint32 newArea);
+    void UpdateZone(uint32 newZone, uint32 newArea, bool force = false);
     void UpdateArea(uint32 newArea);
     void SetNeedZoneUpdate(bool needUpdate) { m_needZoneUpdate = needUpdate; }
 
@@ -1985,6 +1986,7 @@ public:
     void ApplyManaRegenBonus(int32 amount, bool apply);
     void ApplyHealthRegenBonus(int32 amount, bool apply);
     void UpdateManaRegen();
+    void UpdateEnergyRegen();
     void UpdateRuneRegen(RuneType rune);
 
     [[nodiscard]] ObjectGuid GetLootGUID() const { return m_lootGuid; }
@@ -2876,6 +2878,9 @@ protected:
     bool m_canTitanGrip;
     uint8 m_swingErrorMsg;
     float m_ammoDPS;
+
+    float m_Expertise;
+    float m_OffhandExpertise;
 
     ////////////////////Rest System/////////////////////
     time_t _restTime;
