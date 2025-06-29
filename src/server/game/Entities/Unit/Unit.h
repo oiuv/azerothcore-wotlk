@@ -743,7 +743,7 @@ public:
     // Unit type methods
     [[nodiscard]] bool IsSummon() const { return m_unitTypeMask & UNIT_MASK_SUMMON; }
     [[nodiscard]] bool IsGuardian() const { return m_unitTypeMask & UNIT_MASK_GUARDIAN; }
-    [[nodiscard]] bool IsControllableGuardian() const { return m_unitTypeMask & UNIT_MASK_CONTROLABLE_GUARDIAN; }
+    [[nodiscard]] bool IsControllableGuardian() const { return m_unitTypeMask & UNIT_MASK_CONTROLLABLE_GUARDIAN; }
     [[nodiscard]] bool IsPet() const { return m_unitTypeMask & UNIT_MASK_PET; }
     [[nodiscard]] bool IsHunterPet() const { return m_unitTypeMask & UNIT_MASK_HUNTER_PET; }
     [[nodiscard]] bool IsTotem() const { return m_unitTypeMask & UNIT_MASK_TOTEM; }
@@ -1894,6 +1894,7 @@ public:
     void SetInFront(WorldObject const* target);
     void SetFacingTo(float ori);
     void SetFacingToObject(WorldObject* object);
+    void SetTimedFacingToObject(WorldObject* object, uint32 time); // Reset to home orientation after given time
 
     bool isInAccessiblePlaceFor(Creature const* c) const;
     bool isInFrontInMap(Unit const* target, float distance, float arc = M_PI) const;
